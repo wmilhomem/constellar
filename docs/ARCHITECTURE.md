@@ -20,87 +20,101 @@ O projeto é uma plataforma de Constelação Familiar Digital construída sobre 
 
 ---
 
-# Proposta de Evolução Arquitetural (SaaS & AI)
+# Proposta de Evolução Arquitetural: Constellar Global SaaS & IA
 
-Como Principal Software Architect, proponho a seguinte evolução para transformar o Constellar em uma plataforma SaaS global e preparada para IA.
+Esta proposta visa elevar o projeto ao padrão de startup global, focando em escalabilidade, multi-tenancy e integração profunda de IA.
 
 ## 1. Diagrama de Arquitetura (Target)
 
 ```mermaid
 graph TD
     User((Usuário))
-    DNS[Cloudflare DNS/WAF]
-    Edge[Cloudflare Workers - Hono API]
-    UI[React 19 - Edge Assets]
+    DNS[Cloudflare DNS/WAF/Bot Management]
+    Edge[Cloudflare Workers - Hono API Gateway]
+    UI[React 19 - Feature-Based Architecture]
 
-    subgraph "Camada de Aplicação (DDD)"
-        Modules[Modules: Auth, AI, Sessions, Billing]
-        Domain[Domain: Business Rules & Entities]
+    subgraph "Camada de Aplicação (DDD Modular)"
+        Auth[Auth Module: JWT/RBAC]
+        AI_Mod[AI Module: RAG/Prompts]
+        Sess[Sessions Module]
+        Org[Org Module: Multi-tenancy]
+        Bill[Billing Module: Stripe]
     end
 
-    subgraph "Persistência e Processamento"
+    subgraph "Domínio Puro"
+        Domain[Entities & Domain Services]
+    end
+
+    subgraph "Persistência e Mensageria"
         D1[(Cloudflare D1 SQL)]
         R2[(Cloudflare R2 Storage)]
         Queues[Cloudflare Queues]
-        AI[Cloudflare Workers AI / OpenAI]
+        KV[Cloudflare KV Cache]
+        Vector[Cloudflare Vectorize]
     end
 
     User --> DNS
     DNS --> UI
     UI --> Edge
-    Edge --> Modules
-    Modules --> Domain
-    Modules --> D1
-    Modules --> R2
-    Modules --> Queues
-    Queues --> AI
-    AI --> D1
+    Edge --> Auth
+    Edge --> Sess
+    Edge --> AI_Mod
+
+    Auth & Sess & AI_Mod --> Domain
+    Auth & Sess & AI_Mod --> D1
+    AI_Mod --> Vector
+    Sess --> Queues
+    Queues --> AI_Mod
 ```
 
 ## 2. Nova Estrutura de Pastas Recomendada (DDD)
-Migração para uma estrutura orientada a domínio para suportar escalabilidade e múltiplos contextos:
 
 ```
 src/
-├── app/          # Bootstrap, Rotas e Entry Points (API & Frontend)
-├── config/       # Variáveis de ambiente e constantes globais
-├── modules/      # Features isoladas (Bounded Contexts)
-│   ├── auth/        # JWT, RBAC, Auth Providers
-│   ├── users/       # Gestão de perfis e preferências
+├── app/          # Bootstrap, Rotas Globais e Injeção de Dependência
+├── config/       # Variáveis de ambiente, constantes e schemas de config
+├── modules/      # Bounded Contexts (Features isoladas)
+│   ├── auth/        # JWT, RBAC, Auth Middleware
+│   ├── users/       # Perfis e preferências
 │   ├── organizations/# Multi-tenancy, Memberships, Permissions
-│   ├── sessions/    # Lógica de Constelação e Diagnóstico
-│   ├── ai/          # Pipelines de análise e insights
-│   └── billing/     # Integração com Stripe/Pagamentos
-├── domain/       # Entidades e Regras de Negócio Puras (Framework-agnostic)
-├── services/     # Adaptadores para serviços externos (Email, AI, SDKs)
-├── infra/        # Implementações técnicas (Drizzle ORM, Repositories, Storage)
-└── shared/       # Tipos, Zod Schemas e Utilitários transversais
+│   ├── sessions/    # Fluxo principal de Constelação
+│   ├── diagnostics/ # Lógica de diagnósticos sistêmicos
+│   ├── ai/          # RAG, Prompt Engineering, LLM Connectors
+│   ├── billing/     # Planos e assinaturas
+│   ├── analytics/   # Event tracking e métricas de negócio
+│   └── notifications/# Email (Service Bindings), Push, SMS
+├── domain/       # Entidades, Value Objects e Domain Services (Puros)
+├── infra/        # Implementações Técnicas
+│   ├── database/    # Drizzle ORM, Migrations, Repositories
+│   ├── queues/      # Worker Processors para Background Jobs
+│   └── storage/     # Abstrações do R2
+├── services/     # Clientes de APIs Externas (Stripe, OpenAI, etc.)
+└── shared/       # Zod Schemas e Tipos TS transversais
 ```
 
-## 3. Estratégias de Evolução
+## 3. Modelo de Banco de Dados SaaS (Multi-tenant)
+Utilizando o Drizzle ORM sobre o D1:
+- **Tenant Isolation:** Inclusão de `organization_id` em todas as tabelas de domínio.
+- **Relacionamentos:** `users` <-> `organization_members` <-> `organizations`.
+- **RBAC:** Tabela `roles` e `permissions` vinculadas aos membros da organização.
 
-### 3.1. Escalabilidade Global
-- **Edge First:** Toda a lógica de roteamento e processamento inicial permanece em Workers para latência mínima.
-- **Async Workloads:** Uso de Cloudflare Queues para tarefas pesadas (geração de PDFs, análise profunda de IA, analytics) para liberar o Worker principal.
+## 4. Estratégias de Evolução
 
-### 3.2. Multi-tenant SaaS
-- **Isolamento:** Uso de `organization_id` em todas as tabelas críticas no D1.
-- **RBAC:** Implementação de Roles (Admin, Member, Viewer) no nível do módulo de Organizations.
-- **Middleware:** Injeção do contexto do tenant no Hono para garantir que as queries sejam filtradas automaticamente.
+### 4.1. IA & Inteligência Sistêmica (RAG Architecture)
+- **Pipeline:** Entrada do Usuário -> Busca Semântica (Vectorize) -> Recuperação de Contexto Sistêmico -> Prompt Engine -> LLM (Workers AI/GPT-4) -> Insights Sistêmicos.
+- **Async:** Processamento pesado de análise via **Cloudflare Queues**.
 
-### 3.3. APIs Públicas
-- **Versionamento:** Início imediato com `/api/v1/`.
-- **Documentação:** Swagger/OpenAPI gerado via Zod-to-OpenAPI para facilitar a integração por parceiros.
-- **Segurança:** Rate limiting via Cloudflare Workers e autenticação via API Keys.
+### 4.2. Escalabilidade & Globalização
+- **Edge Deployment:** Aproveitamento total da rede Cloudflare para latência zero.
+- **API First:** Backend estruturado como API Pública versionada (`/api/v1/`).
+- **Observabilidade:** Implementação de OpenTelemetry e Cloudflare Analytics Engine.
 
-### 3.4. Integração de IA
-- **Análise Sistêmica:** Mapeamento dos inputs do diagnóstico para prompts estruturados.
-- **RAG (Retrieval Augmented Generation):** Uso de Cloudflare Vectorize para alimentar a IA com bases de conhecimento sobre constelação sistêmica.
-- **Feedback Loop:** Monitoramento de resultados para refinar os insights gerados pela IA.
+## 5. Roadmap Técnico de 12 Meses
 
-## 4. Roadmap Técnico
-1. **Mês 1:** Reestruturação de pastas e setup do Drizzle ORM com Migrations.
-2. **Mês 2:** Implementação do núcleo Multi-tenant e autenticação centralizada.
-3. **Mês 3:** Integração da camada de IA e processamento assíncrono via Queues.
-4. **Mês 4:** Refatoração do Frontend para Feature-based Architecture e TanStack Query.
-5. **Mês 5:** Lançamento da API Pública e dashboards de Analytics.
+| Fase | Período | Foco Principal |
+| :--- | :--- | :--- |
+| **I: Fundação** | Meses 1-2 | Migração para estrutura DDD e Drizzle ORM; Setup de Multi-tenancy básico. |
+| **II: Core SaaS** | Meses 3-4 | Implementação de Auth/RBAC; Integração de Billing (Stripe); Dashboard de Gestão. |
+| **III: AI Expansion**| Meses 5-7 | Pipeline RAG para diagnósticos; Análise automatizada de sessões via Queues. |
+| **IV: Ecosystem** | Meses 8-10 | Lançamento de API Pública; Marketplace de Terapeutas/Ferramentas; Webhooks. |
+| **V: Optimization** | Meses 11-12 | Escala global refinada; Analytics preditivo; Mobile App (React Native/Expo). |
