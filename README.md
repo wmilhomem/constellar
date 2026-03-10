@@ -1,11 +1,8 @@
 ## ConstelAção — Constelação Familiar Digital
 
-Desbloqueie os
-Padrões Familiares
-Que Te Limitam
+Desbloqueie os Padrões Familiares Que Te Limitam
 Descubra o que sua família não te contou. Em 15 minutos, identifique padrões ocultos, liberte-se de emaranhamentos e encontre a paz que você procura.
 
-+2.847 vidas transformadas
 Sessão de 15 minutos
 100% confidencial
 Você sente que algo
