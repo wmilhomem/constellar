@@ -2,8 +2,8 @@
 export default {
   darkMode: ["class"],
   content: [
-    "./index.html",
-    "./src/react-app/**/*.{js,ts,jsx,tsx}",
+    "./src/app/frontend/index.html",
+    "./src/app/frontend/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
