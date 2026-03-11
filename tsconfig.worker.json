@@ -2,11 +2,13 @@
   "extends": "./tsconfig.node.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.worker.tsbuildinfo",
+    "lib": ["ESNext", "DOM"],
     "types": ["vite/client", "./worker-configuration.d.ts"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "jsx": "react-jsx"
   },
-  "include": ["src/worker"]
+  "include": ["src/app", "src/modules", "src/domain", "src/infra", "src/services", "src/shared"]
 }
