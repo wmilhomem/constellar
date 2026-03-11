@@ -18,6 +18,8 @@ export default defineConfig({
 	    allowedHosts: true,
 	  },
   build: {
+    outDir: "../../../dist",
+    emptyOutDir: true,
     chunkSizeWarningLimit: 5000,
   },
   resolve: {
