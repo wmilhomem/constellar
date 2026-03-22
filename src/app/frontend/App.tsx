@@ -4,6 +4,7 @@ import Onboarding from "@/app/frontend/pages/Onboarding";
 import Diagnostico from "@/app/frontend/pages/Diagnostico";
 import Sessao from "@/app/frontend/pages/Sessao";
 import Resultado from "@/app/frontend/pages/Resultado";
+import Conversas from "@/app/frontend/pages/Conversas";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/diagnostico" element={<Diagnostico />} />
         <Route path="/sessao" element={<Sessao />} />
         <Route path="/resultado" element={<Resultado />} />
+        <Route path="/conversas" element={<Conversas />} />
       </Routes>
     </Router>
   );
