@@ -19,15 +19,15 @@ export default function Conversas() {
           <div className="flex flex-wrap gap-3">
              <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
                <ArrowRightToLine className="w-4 h-4 mr-2 text-purple-400" />
-               <span className="hidden md:inline">Transferir para Fila</span>
+               Transferir para Fila
              </Button>
              <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
                <Tag className="w-4 h-4 mr-2 text-pink-400" />
-               <span className="hidden md:inline">Tags</span>
+               Tags
              </Button>
              <Button variant="outline" className="border-slate-700 hover:bg-slate-800 text-slate-300">
                <Kanban className="w-4 h-4 mr-2 text-blue-400" />
-               <span className="hidden md:inline">Visualizar Kanban</span>
+               Visualizar Kanban
              </Button>
           </div>
         </header>
